@@ -1,0 +1,7 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
+import { getRecords } from '../lib/records';
+import { useAuth } from '../context/AuthContext';
+ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip, Legend);
+export default function Statistics(){const {user}=useAuth();const [records,setRecords]=useState([]);useEffect(()=>{getRecords(user.uid).then(setRecords).catch(console.error)},[user.uid]);const counts=useMemo(()=>({checkup:records.filter(r=>r.type==='checkup').length,vaccination:records.filter(r=>r.type==='vaccination').length,medication:records.filter(r=>r.type==='medication').length}),[records]);const data={labels:['Pregledi','Vakcinacije','Lekovi'],datasets:[{label:'Broj evidencija',data:[counts.checkup,counts.vaccination,counts.medication],borderRadius:8}]};return <><div className="topbar"><div><h1>Statistika</h1><p className="muted">Vizuelni pregled vaših zdravstvenih evidencija.</p></div></div><div className="chart-card"><Bar data={data} options={{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}}}}}/></div><div className="stats-grid"><div className="stat-card"><span>Pregledi</span><strong>{counts.checkup}</strong></div><div className="stat-card"><span>Vakcinacije</span><strong>{counts.vaccination}</strong></div><div className="stat-card"><span>Lekovi</span><strong>{counts.medication}</strong></div></div></>}
